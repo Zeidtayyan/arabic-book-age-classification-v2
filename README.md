@@ -41,7 +41,7 @@ All misclassifications occurred between adjacent age categories — no children'
 | `all_books_W_L.xlsx` | Labeled corpus of 140 Arabic books split into ~25,680 chunks |
 | `all_data_results.csv` | Full prediction results on the test set |
 | `feature_importance.csv` | XGBoost feature importance rankings |
-| `arabert_finetuned/` | Fine-tuned AraBERT v02 model checkpoint |
+| `arabert_finetuned/` | Fine-tuned AraBERT v02 model checkpoint (see breakdown below) |
 | `xgb_model.pkl` | Trained XGBoost classifier |
 | `rf_model.pkl` | Trained Random Forest classifier |
 | `gb_model.pkl` | Trained Gradient Boosting classifier |
@@ -81,6 +81,39 @@ End-to-end inference notebook that takes a new PDF book and outputs its predicte
 - Applies the same cleaning, chunking, and feature extraction pipeline used during training.
 - Runs the weighted ensemble to compute class probabilities and select the predicted age group.
 - Generates a final report containing the predicted category, confidence score, and the contribution breakdown between AraBERT and the ML branch, then exports results to CSV.
+
+---
+
+## The `arabert_finetuned/` Folder
+
+This folder contains the fine-tuned AraBERT v02 checkpoint used by the semantic branch of the pipeline. It includes:
+
+| File | Description |
+|---|---|
+| `model.safetensors` | The fine-tuned model weights (~500 MB, ~135M parameters). **Hosted externally — see download link below.** |
+| `config.json` | Model architecture configuration (layers, hidden size, number of labels) |
+| `tokenizer.json` | The AraBERT tokenizer vocabulary and merge rules |
+| `tokenizer_config.json` | Tokenizer settings (special tokens, padding, truncation) |
+| `training_args.bin` | The exact `TrainingArguments` used during fine-tuning (for reproducibility) |
+
+### Downloading the model weights
+
+Because `model.safetensors` exceeds GitHub's 100 MB file size limit, it is hosted on Google Drive:
+
+**[Download model.safetensors (Google Drive)](https://drive.google.com/file/d/1JFYNP05d1bcThsriqSkuALyykItlywo0/view?usp=sharing)**
+
+After downloading, place the file inside the `arabert_finetuned/` folder so the directory structure looks like this:
+
+```
+arabert_finetuned/
+├── model.safetensors        ← downloaded from Google Drive
+├── config.json
+├── tokenizer.json
+├── tokenizer_config.json
+└── training_args.bin
+```
+
+The `predict.ipynb` notebook will then load the full model automatically using `AutoModelForSequenceClassification.from_pretrained("arabert_finetuned/")`.
 
 ---
 
